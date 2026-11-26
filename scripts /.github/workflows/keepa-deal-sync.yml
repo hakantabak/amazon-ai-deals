@@ -1,0 +1,37 @@
+name: Keepa Fırsat & AI Veri Güncelleyici
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # Her 30 dakikada bir otomatik çalışır
+  workflow_dispatch:        # Manuel tetikleme butonu
+
+permissions:
+  contents: write
+
+jobs:
+  sync-deals:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repoyu Çek
+        uses: actions/checkout@v4
+
+      - name: Python Kurulumu
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Bağımlılıkları Yükle
+        run: pip install requests
+
+      - name: Keepa Verilerini Çek ve Dosyaları Güncelle
+        env:
+          KEEPA_API_KEY: ${{ secrets.KEEPA_API_KEY }}
+          AMAZON_TAG: ${{ secrets.AMAZON_TAG }}
+        run: python scripts/fetch_deals.py
+
+      - name: Güncellenmiş Verileri Repoya Kaydet
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/ llms.txt
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: Keepa fırsat ve AI verileri güncellendi" && git push)

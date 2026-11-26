@@ -202,16 +202,14 @@ def run_radar():
     llms_lines = [
         "# Nabstash — Curated Amazon Deal Radar",
         f"> Last Updated: {timestamp_str}",
-        "> Disclosure: As an Amazon Associate, Nabstash earns from qualifying purchases. Product prices and availability are accurate as of the date/time indicated on each product page and are subject to change.
-",
+        "> Disclosure: As an Amazon Associate, Nabstash earns from qualifying purchases. Product prices and availability are accurate as of the date/time indicated on each product page and are subject to change.\n",
         "## Live Deal Pages on Nabstash"
     ]
     for d in discovered[:20]:
         llms_lines.append(
             f"- **{d['title']}** (~{d['discount_percent']}% off detected at {timestamp_str}) -> View live price & details: https://www.nabstash.com/go.php?asin={d['asin']}"
         )
-    llms_content = "
-".join(llms_lines)
+    llms_content = "\n".join(llms_lines)
 
     os.makedirs("data", exist_ok=True)
     with open(RADAR_FILE, "w", encoding="utf-8") as f:

@@ -18,16 +18,21 @@ def load_json(path, default):
             return json.load(f)
     return default
 
+def extract_int(val):
+    # Keepa'nın iç içe liste veya sayı formatını güvenli şekilde tam sayıya çevirir
+    while isinstance(val, list):
+        val = val[0] if len(val) > 0 else 0
+    return val if isinstance(val, (int, float)) else 0
+
 def fetch_keepa_deal_asins():
-    # Sadece 5 token harcayarak anlık indirimdeki ürünlerin ASIN radarını çeker
     url = f"https://api.keepa.com/deal?key={KEEPA_API_KEY}"
     payload = {
         "page": 0,
         "domainId": DOMAIN_ID,
-        "priceTypes": [0],             # Amazon ana fiyatı
-        "deltaPercentRange": [20, 80], # %20 - %80 arası gerçek indirimler
-        "currentRange": [2500, 30000], # $25 - $300 arası yüksek sepet tutarlı ürünler
-        "sortType": 4,                 # En yeni tespit edilen fırsatlar
+        "priceTypes": [0],
+        "deltaPercentRange": [20, 80],
+        "currentRange": [2500, 30000],
+        "sortType": 4,
         "isFilterEnabled": True
     }
     response = requests.post(url, json=payload, timeout=30)
@@ -50,8 +55,9 @@ def run_radar():
         if not asin:
             continue
 
-        current_price = item.get("current", [0])[0]
-        avg_price = item.get("avg", [0])[0]
+        current_price = extract_int(item.get("current", 0))
+        avg_price = extract_int(item.get("avg", 0))
+        
         if current_price <= 0 or avg_price <= current_price:
             continue
 
@@ -91,6 +97,8 @@ def run_radar():
         f.write(llms_content)
     with open(SENT_FILE, "w", encoding="utf-8") as f:
         json.dump(list(sent_asins)[-1000:], f)
+
+    print(f"Tespit edilen indirimli ürün sayısı: {len(discovered)}, Yeni gönderilecek ASIN: {len(new_to_send)}")
 
     # Yeni tespit edilen ASIN'leri nabstash.com kuyruğuna ilet
     if WEBHOOK_SECRET and (new_to_send or discovered):

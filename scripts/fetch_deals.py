@@ -13,9 +13,6 @@ SENT_FILE = "data/sent_asins.json"
 COUPON_CURSOR_FILE = "data/coupon_cursor.json"
 LLMS_FILE = "llms.txt"
 
-# 1 token/min plan = 30 tokens regenerated every 30 min.
-# Keepa /deal costs ~5 tokens per call (2 calls = 10 tokens).
-# Keepa /product costs 1 token per ASIN -> max 16 ASINs per run = ~26 tokens total!
 MAX_COUPON_CHECKS_PER_RUN = 16
 
 
@@ -54,19 +51,21 @@ def parse_keepa_coupon(coupon_arr, current_price_cents=0):
     return None
 
 
-def fetch_keepa_deals(has_coupon=False):
+def fetch_keepa_deals(has_coupon=False, lightning_only=False):
     url = f"https://api.keepa.com/deal?key={KEEPA_API_KEY}"
     payload = {
         "page": 0,
         "domainId": DOMAIN_ID,
         "priceTypes": [0],
-        "deltaPercentRange": [15, 85] if has_coupon else [20, 80],
-        "currentRange": [1000, 30000] if has_coupon else [2500, 30000],
+        "deltaPercentRange": [15, 85] if has_coupon else [25, 85],
+        "currentRange": [1000, 30000] if has_coupon else [2000, 35000],
         "sortType": 4,
         "isFilterEnabled": True
     }
     if has_coupon:
         payload["hasCoupon"] = True
+    if lightning_only:
+        payload["dealTypes"] = [1, 2]  # Official Amazon Lightning & Event / DotD Deals
 
     response = requests.post(url, json=payload, timeout=30)
     response.raise_for_status()
@@ -103,19 +102,25 @@ def fetch_keepa_product_coupons(asin_list):
                     price_cents = last_p
 
             parsed = parse_keepa_coupon(prod.get("coupon"), price_cents)
+            has_live_deal = bool(prod.get("deals"))
             if parsed:
                 results[asin] = {
                     "asin": asin,
                     "active": True,
                     "type": parsed["type"],
-                    "value": parsed["value"]
+                    "value": parsed["value"],
+                    "has_amazon_deal": has_live_deal
                 }
             else:
-                results[asin] = {"asin": asin, "active": False}
+                results[asin] = {
+                    "asin": asin,
+                    "active": False,
+                    "has_amazon_deal": has_live_deal
+                }
 
         for a in batch:
             if a not in returned_set:
-                results[a] = {"asin": a, "active": False}
+                results[a] = {"asin": a, "active": False, "has_amazon_deal": False}
     except Exception as e:
         print(f"Keepa product coupon check warning: {e}")
     return results
@@ -125,8 +130,10 @@ def run_radar():
     now_utc = datetime.now(timezone.utc)
     timestamp_str = now_utc.strftime("%Y-%m-%d %H:%M UTC")
 
-    general_deals = fetch_keepa_deals(has_coupon=False)
-    coupon_deals = fetch_keepa_deals(has_coupon=True)
+    event_deals = fetch_keepa_deals(has_coupon=False, lightning_only=True)
+    if len(event_deals) < 10:
+        event_deals += fetch_keepa_deals(has_coupon=False, lightning_only=False)
+    coupon_deals = fetch_keepa_deals(has_coupon=True, lightning_only=False)
 
     sent_asins = set(load_json(SENT_FILE, []))
     cursor_state = load_json(COUPON_CURSOR_FILE, {"asins": [], "cursor": 0})
@@ -136,9 +143,10 @@ def run_radar():
     discovered = []
     new_to_send = []
     new_coupon_candidates = []
+    event_deal_asins = []
 
     seen_in_run = set()
-    for is_coupon_feed, feed in [(True, coupon_deals), (False, general_deals)]:
+    for feed_kind, feed in [("event", event_deals), ("coupon", coupon_deals)]:
         for item in feed[:25]:
             asin = (item.get("asin") or "").strip().upper()
             if len(asin) != 10 or asin in seen_in_run:
@@ -153,15 +161,20 @@ def run_radar():
             discount_pct = round(((avg_price - current_price) / avg_price) * 100)
             raw_title = (item.get("title") or f"Amazon Deal {asin}").strip()
             short_title = raw_title[:110]
+            deal_type = item.get("dealType", 0)
+            is_event_deal = (feed_kind == "event") or (deal_type in [1, 2])
 
-            if is_coupon_feed and asin not in new_coupon_candidates:
+            if is_event_deal:
+                event_deal_asins.append(asin)
+            if feed_kind == "coupon" and asin not in new_coupon_candidates:
                 new_coupon_candidates.append(asin)
 
             entry = {
                 "asin": asin,
                 "title": short_title,
                 "discount_percent": discount_pct,
-                "has_coupon_hint": is_coupon_feed,
+                "has_coupon_hint": (feed_kind == "coupon"),
+                "is_amazon_event_deal": is_event_deal,
                 "detected_at": timestamp_str
             }
             discovered.append(entry)
@@ -183,7 +196,6 @@ def run_radar():
     coupon_status_map = fetch_keepa_product_coupons(to_check)
     coupon_updates = list(coupon_status_map.values())
 
-    # AI-readable product detail URLs (p.php?asin=...) instead of blocked go.php!
     llms_lines = [
         "# Nabstash — Curated Amazon Deal Radar",
         f"> Last Updated: {timestamp_str}",
@@ -206,7 +218,7 @@ def run_radar():
     with open(SENT_FILE, "w", encoding="utf-8") as f:
         json.dump(list(sent_asins)[-1500:], f)
 
-    print(f"Tespit edilen ürün: {len(discovered)}, Yeni ASIN: {len(new_to_send)}, Kupon kontrolü: {len(coupon_updates)}")
+    print(f"Tespit edilen ürün: {len(discovered)}, Yeni ASIN: {len(new_to_send)}, Event Deal ASIN: {len(event_deal_asins)}")
 
     if WEBHOOK_SECRET:
         res = requests.post(
@@ -217,6 +229,7 @@ def run_radar():
             },
             json={
                 "asins": new_to_send[:20],
+                "event_deal_asins": event_deal_asins,
                 "coupon_updates": coupon_updates,
                 "llms_txt": llms_content
             },

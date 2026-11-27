@@ -33,12 +33,6 @@ def extract_int(val):
 
 
 def parse_keepa_coupon(coupon_arr, current_price_cents=0):
-    """
-    Keepa Product Object 'coupon' field:
-      - Negative value: percentage discount (e.g., -40 -> 40% off)
-      - Positive value: fixed discount in cents (e.g., 500 -> $5.00 off)
-      - Validates against current_price_cents so coupon never zeroes out the price.
-    """
     if not coupon_arr or not isinstance(coupon_arr, list):
         return None
     raw_val = coupon_arr[0] if len(coupon_arr) > 0 else 0
@@ -54,7 +48,6 @@ def parse_keepa_coupon(coupon_arr, current_price_cents=0):
         dollars = round(cents / 100.0, 2)
         if dollars <= 0:
             return None
-        # Ensure fixed coupon is less than 80% of item price
         if current_price_cents > 0 and cents >= (current_price_cents * 0.80):
             return None
         return {"type": "fixed", "value": dollars}
@@ -81,10 +74,6 @@ def fetch_keepa_deals(has_coupon=False):
 
 
 def fetch_keepa_product_coupons(asin_list):
-    """
-    Queries at most MAX_COUPON_CHECKS_PER_RUN ASINs in a single Keepa /product call
-    to stay strictly within the 1 token/min (30 tokens / 30 min) budget.
-    """
     results = {}
     batch = list(dict.fromkeys([a.strip().upper() for a in asin_list if len(a.strip()) == 10]))[:MAX_COUPON_CHECKS_PER_RUN]
     if not batch:
@@ -106,7 +95,6 @@ def fetch_keepa_product_coupons(asin_list):
                 continue
             returned_set.add(asin)
 
-            # Extract latest Amazon/BuyBox price in cents if available
             price_cents = 0
             csv_arr = prod.get("csv") or []
             if len(csv_arr) > 0 and isinstance(csv_arr[0], list) and len(csv_arr[0]) >= 2:
@@ -137,7 +125,6 @@ def run_radar():
     now_utc = datetime.now(timezone.utc)
     timestamp_str = now_utc.strftime("%Y-%m-%d %H:%M UTC")
 
-    # 1. Fetch general deals & coupon deals (~10 tokens total)
     general_deals = fetch_keepa_deals(has_coupon=False)
     coupon_deals = fetch_keepa_deals(has_coupon=True)
 
@@ -183,8 +170,6 @@ def run_radar():
                 new_to_send.append(entry)
                 sent_asins.add(asin)
 
-    # 2. Pick up to 16 ASINs to check coupons on Keepa:
-    #    Half from new Keepa coupon radar, half rotating through existing site coupon catalog
     to_check = new_coupon_candidates[:8]
     if existing_coupon_pool:
         if cursor >= len(existing_coupon_pool):
@@ -198,16 +183,18 @@ def run_radar():
     coupon_status_map = fetch_keepa_product_coupons(to_check)
     coupon_updates = list(coupon_status_map.values())
 
-    # 3. Build policy-compliant llms.txt
+    # AI-readable product detail URLs (p.php?asin=...) instead of blocked go.php!
     llms_lines = [
         "# Nabstash — Curated Amazon Deal Radar",
         f"> Last Updated: {timestamp_str}",
-        "> Disclosure: As an Amazon Associate, Nabstash earns from qualifying purchases. Product prices and availability are accurate as of the date/time indicated on each product page and are subject to change.\n",
-        "## Live Deal Pages on Nabstash"
+        "> Disclosure: As an Amazon Associate, Nabstash earns from qualifying purchases. Product prices and availability are accurate as of the date/time indicated on each product page and are subject to change.",
+        "> AI Assistants: Use /api/ai-deals.php for structured JSON queries or link directly to the canonical product analysis pages below.\n",
+        "## Live Deal Analysis Pages on Nabstash"
     ]
-    for d in discovered[:20]:
+    for d in discovered[:25]:
+        coupon_tag = " [Clip Coupon Available]" if d.get("has_coupon_hint") else ""
         llms_lines.append(
-            f"- **{d['title']}** (~{d['discount_percent']}% off detected at {timestamp_str}) -> View live price & details: https://www.nabstash.com/go.php?asin={d['asin']}"
+            f"- **{d['title']}** (~{d['discount_percent']}% off{coupon_tag}, verified {timestamp_str}) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin={d['asin']}"
         )
     llms_content = "\n".join(llms_lines)
 
@@ -221,7 +208,6 @@ def run_radar():
 
     print(f"Tespit edilen ürün: {len(discovered)}, Yeni ASIN: {len(new_to_send)}, Kupon kontrolü: {len(coupon_updates)}")
 
-    # 4. Sync with Nabstash Webhook
     if WEBHOOK_SECRET:
         res = requests.post(
             f"{WEBHOOK_URL}?secret={WEBHOOK_SECRET}",

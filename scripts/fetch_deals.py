@@ -51,25 +51,68 @@ def parse_keepa_coupon(coupon_arr, current_price_cents=0):
     return None
 
 
-def fetch_keepa_deals(has_coupon=False, lightning_only=False):
+def extract_keepa_deal_badge(item_or_prod):
+    """
+    Extracts the genuine Amazon deal badge from Keepa Deal Object or Product Object 'deals' list.
+    Returns e.g. 'Black Friday Deal', 'Cyber Monday Deal', 'Lightning Deal', 'Prime Exclusive Deal', or None.
+    """
+    deals_arr = item_or_prod.get("deals")
+    if isinstance(deals_arr, list):
+        for d in deals_arr:
+            if not isinstance(d, dict):
+                continue
+            badge = (d.get("badge") or d.get("dealBadge") or "").strip()
+            if badge:
+                return badge
+            dtype = d.get("dealType")
+            atype = str(d.get("accessType") or "").upper()
+            if dtype == 1:
+                return "Lightning Deal"
+            if dtype == 2:
+                return "Deal of the Day"
+            if dtype == 0:
+                return "Prime Exclusive Deal" if "PRIME" in atype else "Amazon Event Deal"
+
+    badge_direct = (item_or_prod.get("badge") or item_or_prod.get("dealBadge") or "").strip()
+    if badge_direct:
+        return badge_direct
+
+    dtype = item_or_prod.get("dealType")
+    if dtype == 1:
+        return "Lightning Deal"
+    if dtype == 2:
+        return "Deal of the Day"
+    if dtype == 0 and item_or_prod.get("_from_event_feed"):
+        return "Amazon Event Deal"
+
+    return None
+
+
+def fetch_keepa_deals(has_coupon=False, event_only=False):
     url = f"https://api.keepa.com/deal?key={KEEPA_API_KEY}"
     payload = {
         "page": 0,
         "domainId": DOMAIN_ID,
         "priceTypes": [0],
-        "deltaPercentRange": [15, 85] if has_coupon else [25, 85],
-        "currentRange": [1000, 30000] if has_coupon else [2000, 35000],
+        "deltaPercentRange": [15, 85] if has_coupon else [20, 85],
+        "currentRange": [1000, 35000] if has_coupon else [1500, 40000],
         "sortType": 4,
         "isFilterEnabled": True
     }
     if has_coupon:
         payload["hasCoupon"] = True
-    if lightning_only:
-        payload["dealTypes"] = [1, 2]  # Official Amazon Lightning & Event / DotD Deals
+    if event_only:
+        # 0 = Best Deal (Black Friday / Cyber Monday / Prime Day), 1 = Lightning Deal, 2 = Deal of the Day
+        payload["dealTypes"] = [0, 1, 2]
 
     response = requests.post(url, json=payload, timeout=30)
     response.raise_for_status()
-    return response.json().get("deals", {}).get("dr", [])
+    rows = response.json().get("deals", {}).get("dr", [])
+    if event_only:
+        for r in rows:
+            if isinstance(r, dict):
+                r["_from_event_feed"] = True
+    return rows
 
 
 def fetch_keepa_product_coupons(asin_list):
@@ -102,25 +145,25 @@ def fetch_keepa_product_coupons(asin_list):
                     price_cents = last_p
 
             parsed = parse_keepa_coupon(prod.get("coupon"), price_cents)
-            has_live_deal = bool(prod.get("deals"))
+            real_badge = extract_keepa_deal_badge(prod)
             if parsed:
                 results[asin] = {
                     "asin": asin,
                     "active": True,
                     "type": parsed["type"],
                     "value": parsed["value"],
-                    "has_amazon_deal": has_live_deal
+                    "amazon_badge": real_badge
                 }
             else:
                 results[asin] = {
                     "asin": asin,
                     "active": False,
-                    "has_amazon_deal": has_live_deal
+                    "amazon_badge": real_badge
                 }
 
         for a in batch:
             if a not in returned_set:
-                results[a] = {"asin": a, "active": False, "has_amazon_deal": False}
+                results[a] = {"asin": a, "active": False, "amazon_badge": None}
     except Exception as e:
         print(f"Keepa product coupon check warning: {e}")
     return results
@@ -130,10 +173,10 @@ def run_radar():
     now_utc = datetime.now(timezone.utc)
     timestamp_str = now_utc.strftime("%Y-%m-%d %H:%M UTC")
 
-    event_deals = fetch_keepa_deals(has_coupon=False, lightning_only=True)
-    if len(event_deals) < 10:
-        event_deals += fetch_keepa_deals(has_coupon=False, lightning_only=False)
-    coupon_deals = fetch_keepa_deals(has_coupon=True, lightning_only=False)
+    # 1. Fetch ONLY genuine Amazon Event/Badge deals (Black Friday / Cyber Monday / Lightning / DotD)
+    #    plus Coupon deals (~10 tokens total). Never mix unbadged deals into event_deals!
+    event_deals = fetch_keepa_deals(has_coupon=False, event_only=True)
+    coupon_deals = fetch_keepa_deals(has_coupon=True, event_only=False)
 
     sent_asins = set(load_json(SENT_FILE, []))
     cursor_state = load_json(COUPON_CURSOR_FILE, {"asins": [], "cursor": 0})
@@ -143,11 +186,11 @@ def run_radar():
     discovered = []
     new_to_send = []
     new_coupon_candidates = []
-    event_deal_asins = []
+    verified_event_deals = {}  # ASIN -> actual Amazon badge text
 
     seen_in_run = set()
     for feed_kind, feed in [("event", event_deals), ("coupon", coupon_deals)]:
-        for item in feed[:25]:
+        for item in feed[:30]:
             asin = (item.get("asin") or "").strip().upper()
             if len(asin) != 10 or asin in seen_in_run:
                 continue
@@ -161,11 +204,10 @@ def run_radar():
             discount_pct = round(((avg_price - current_price) / avg_price) * 100)
             raw_title = (item.get("title") or f"Amazon Deal {asin}").strip()
             short_title = raw_title[:110]
-            deal_type = item.get("dealType", 0)
-            is_event_deal = (feed_kind == "event") or (deal_type in [1, 2])
 
-            if is_event_deal:
-                event_deal_asins.append(asin)
+            badge_label = extract_keepa_deal_badge(item)
+            if badge_label:
+                verified_event_deals[asin] = badge_label
             if feed_kind == "coupon" and asin not in new_coupon_candidates:
                 new_coupon_candidates.append(asin)
 
@@ -174,7 +216,7 @@ def run_radar():
                 "title": short_title,
                 "discount_percent": discount_pct,
                 "has_coupon_hint": (feed_kind == "coupon"),
-                "is_amazon_event_deal": is_event_deal,
+                "amazon_badge": badge_label,
                 "detected_at": timestamp_str
             }
             discovered.append(entry)
@@ -183,7 +225,8 @@ def run_radar():
                 new_to_send.append(entry)
                 sent_asins.add(asin)
 
-    to_check = new_coupon_candidates[:8]
+    priority_check = list(verified_event_deals.keys())[:4] + new_coupon_candidates[:4]
+    to_check = list(dict.fromkeys(priority_check))
     if existing_coupon_pool:
         if cursor >= len(existing_coupon_pool):
             cursor = 0
@@ -195,6 +238,9 @@ def run_radar():
 
     coupon_status_map = fetch_keepa_product_coupons(to_check)
     coupon_updates = list(coupon_status_map.values())
+    for c_asin, c_info in coupon_status_map.items():
+        if c_info.get("amazon_badge"):
+            verified_event_deals[c_asin] = c_info["amazon_badge"]
 
     llms_lines = [
         "# Nabstash — Curated Amazon Deal Radar",
@@ -204,9 +250,10 @@ def run_radar():
         "## Live Deal Analysis Pages on Nabstash"
     ]
     for d in discovered[:25]:
-        coupon_tag = " [Clip Coupon Available]" if d.get("has_coupon_hint") else ""
+        badge_note = f" [{d['amazon_badge']}]" if d.get("amazon_badge") else ""
+        coupon_tag = " [Clip Coupon]" if d.get("has_coupon_hint") else ""
         llms_lines.append(
-            f"- **{d['title']}** (~{d['discount_percent']}% off{coupon_tag}, verified {timestamp_str}) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin={d['asin']}"
+            f"- **{d['title']}** (~{d['discount_percent']}% off{badge_note}{coupon_tag}, verified {timestamp_str}) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin={d['asin']}"
         )
     llms_content = "\n".join(llms_lines)
 
@@ -218,9 +265,13 @@ def run_radar():
     with open(SENT_FILE, "w", encoding="utf-8") as f:
         json.dump(list(sent_asins)[-1500:], f)
 
-    print(f"Tespit edilen ürün: {len(discovered)}, Yeni ASIN: {len(new_to_send)}, Event Deal ASIN: {len(event_deal_asins)}")
+    print(f"Tespit edilen ürün: {len(discovered)}, Yeni ASIN: {len(new_to_send)}, Gerçek Amazon Rozetli ASIN: {len(verified_event_deals)}")
 
     if WEBHOOK_SECRET:
+        event_entries = [e for e in new_to_send if e["asin"] in verified_event_deals]
+        other_entries = [e for e in new_to_send if e["asin"] not in verified_event_deals]
+        ordered_to_send = (event_entries + other_entries)[:20]
+
         res = requests.post(
             f"{WEBHOOK_URL}?secret={WEBHOOK_SECRET}",
             headers={
@@ -228,8 +279,8 @@ def run_radar():
                 "X-Webhook-Secret": WEBHOOK_SECRET
             },
             json={
-                "asins": new_to_send[:20],
-                "event_deal_asins": event_deal_asins,
+                "asins": ordered_to_send,
+                "verified_event_deals": verified_event_deals,
                 "coupon_updates": coupon_updates,
                 "llms_txt": llms_content
             },

@@ -1,25 +1,31 @@
 # Nabstash — Curated Amazon Deal Radar
-> Last Updated: 2026-11-27 04:24 UTC
+> Last Updated: 2026-11-27 08:17 UTC
 > Disclosure: As an Amazon Associate, Nabstash earns from qualifying purchases. Product prices and availability are accurate as of the date/time indicated on each product page and are subject to change.
+> AI Assistants: Use /api/ai-deals.php for structured JSON queries or link directly to the canonical product analysis pages below.
 
-## Live Deal Pages on Nabstash
-- **FREIGHTLINER 23-10742-050 - Screw - Cap, Hex Head** (~96% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0BQWPPM7W
-- **Basic ICD-10-CM and ICD-10-PCS Coding, 2022** (~94% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=1584268395
-- **Fall Clings Party Accessory (1 count) (12/Sh)** (~93% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B002YDMPY0
-- **3M 88776 Angle Head Housing Replacement Component** (~93% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0G45H8RM5
-- **Modèles de correspondance: Guide complet pour toutes vos lettres, demandes et courriels professionnels et pers** (~93% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0CV15JDYM
-- **Sunshine 79 Women's Triangle Halter Bikini Swimsuit Top, Multi//Disco Dream, 14** (~92% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0DJCLGXY2
-- **Silicone Penrose Drain, Sterile, Premium, 18" x 0.25",25,Case,DYND50520** (~90% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0FP5GPQC1
-- **Maddie V-Neck One-Piece Swimsuit with Cut-Out and Ring Detail Cactus** (~90% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0C6G9C7L9
-- **The First Step Guide for Mom of 3 years Child** (~91% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0H6H12J1X
-- **WEWOREWHAT-V-Neck Tie Top-Crochet-Off-White-S** (~89% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0DZJ2TTSL
-- **CIG Clover Replacement Ink Cartridge for Canon PFI-1700PGY 0782C001AA | Photo Gray** (~88% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B08P2JGFGT
-- **maison blanche All Gender Knitted Cropped Sweater, Coconut Milk, 2** (~88% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B09W8SWSGB
-- **2025 ICD-10 Expert for Home Health and Hospice with guidelines (Spiral)** (~89% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=1622549368
-- **Die Pathologische Luge Und Die Psychisch Abnormen Schwindler (1891) (German Edition)** (~88% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=1166815706
-- **Noark Safety Contactor, Ex9C, Standard, FVNR, 9A, DC, 1NO+1NC, 24V, 3 Pole 1321999 Ex9CA09D11B** (~86% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0C9R5HY58
-- **Fina Gown** (~87% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0D1H6KQLX
-- **Black with Gold Rim Chargers - 13" - Case Pack of 48 - For Weddings, Parties & Events** (~88% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0GT28KXLX
-- **ICE Out of LA Flag for Protest Home Decoration Room Bandera para Support Immigration Door Sign Abolish ICE Pos** (~88% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0FCFN7DBB
-- **The Fold Machine: True Noitallion Tales Yet To Be Discovered (Music meets Touch™)** (~88% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0HSR4KGCW
-- **River Cut Out 1PC** (~88% off detected at 2026-11-27 04:24 UTC) -> View live price & details: https://www.nabstash.com/go.php?asin=B0CPM1S95L
+## Live Deal Analysis Pages on Nabstash
+- **FREIGHTLINER 23-10742-050 - Screw - Cap, Hex Head** (~96% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0BQWPPM7W
+- **Fall Clings Party Accessory (1 count) (12/Sh)** (~93% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B002YDMPY0
+- **Basic ICD-10-CM and ICD-10-PCS Coding, 2022** (~93% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=1584268395
+- **Modèles de correspondance: Guide complet pour toutes vos lettres, demandes et courriels professionnels et pers** (~92% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0CV15JDYM
+- **Sunshine 79 Women's Triangle Halter Bikini Swimsuit Top, Multi//Disco Dream, 14** (~91% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0DJCLGXY2
+- **3M 88776 Angle Head Housing Replacement Component** (~92% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0G45H8RM5
+- **The First Step Guide for Mom of 3 years Child** (~89% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0H6H12J1X
+- **Silicone Penrose Drain, Sterile, Premium, 18" x 0.25",25,Case,DYND50520** (~89% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0FP5GPQC1
+- **WEWOREWHAT-V-Neck Tie Top-Crochet-Off-White-S** (~88% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0DZJ2TTSL
+- **PAIGE Men's Lennox 32" Transcend Slim Fit Pant, Vintage Hail, 33** (~90% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0GK4L6TT4
+- **Maddie V-Neck One-Piece Swimsuit with Cut-Out and Ring Detail Cactus** (~89% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0C6G9C7L9
+- **CIG Clover Replacement Ink Cartridge for Canon PFI-1700PGY 0782C001AA | Photo Gray** (~85% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B08P2JGFGT
+- **maison blanche All Gender Knitted Cropped Sweater, Coconut Milk, 2** (~87% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B09W8SWSGB
+- **Die Pathologische Luge Und Die Psychisch Abnormen Schwindler (1891) (German Edition)** (~87% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=1166815706
+- **Fina Gown** (~86% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0D1H6KQLX
+- **ICE Out of LA Flag for Protest Home Decoration Room Bandera para Support Immigration Door Sign Abolish ICE Pos** (~87% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0FCFN7DBB
+- **River Cut Out 1PC** (~87% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0CPM1S95L
+- **Joie Womens Tezza Top in Apricot Buff Multi Shirt, Apricot Buff Multi, Medium US** (~87% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0BZQ5JCS5
+- **Nasty Gal Floral Devore Lace Trim Bralette** (~84% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0FV92XMPH
+- **LIKELY Womens Leala Dress, White, 4 US** (~88% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0CRXMNFBD
+- **2025 ICD-10 Expert for Home Health and Hospice with guidelines (Spiral)** (~87% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=1622549368
+- **Amazon Essentials Girls' School Uniform Pleated Jumper Dress, Navy, Small Slim** (~85% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B09FTBH1BQ
+- **Haggar Men's Classic Fit Cool 18 Dress Casual Short** (~87% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B000OEZPFW
+- **HELLA 355798682 Brake Caliper With Bracket, Front Right** (~85% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0GJTGPTLG
+- **Dickies BASIC HIGH RISE WIDE LEG** (~86% off [Clip Coupon Available], verified 2026-11-27 08:17 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0DQWHVPH2

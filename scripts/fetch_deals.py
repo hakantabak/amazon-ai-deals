@@ -13,7 +13,7 @@ SENT_FILE = "data/sent_asins.json"
 COUPON_CURSOR_FILE = "data/coupon_cursor.json"
 LLMS_FILE = "llms.txt"
 
-MAX_COUPON_CHECKS_PER_RUN = 16
+MAX_PRODUCT_CHECKS_PER_RUN = 16
 
 
 def load_json(path, default):
@@ -27,6 +27,71 @@ def extract_int(val):
     while isinstance(val, list):
         val = val[0] if len(val) > 0 else 0
     return val if isinstance(val, (int, float)) else 0
+
+
+def keepa_time_to_unix(keepa_minutes):
+    # Keepa timestamp is minutes since 2011-01-01 00:00:00 UTC (epoch 1293840000)
+    return int((keepa_minutes + 21564000) * 60)
+
+
+def extract_keepa_rating(prod):
+    """
+    Extracts latest star rating (1.0 - 5.0) and review count from Keepa Product Object.
+    Keepa csv[16] = RATING (0..50, e.g. 46 = 4.6 stars)
+    Keepa csv[17] = COUNT_REVIEWS
+    """
+    rating_val = None
+    review_cnt = None
+    csv_arr = prod.get("csv") or []
+
+    if len(csv_arr) > 16 and isinstance(csv_arr[16], list) and len(csv_arr[16]) >= 2:
+        raw_r = csv_arr[16][-1]
+        if isinstance(raw_r, (int, float)) and 0 < raw_r <= 50:
+            rating_val = round(float(raw_r) / 10.0, 1)
+
+    if len(csv_arr) > 17 and isinstance(csv_arr[17], list) and len(csv_arr[17]) >= 2:
+        raw_c = csv_arr[17][-1]
+        if isinstance(raw_c, (int, float)) and raw_c > 0:
+            review_cnt = int(raw_c)
+
+    stats = prod.get("stats") or {}
+    if rating_val is None and isinstance(stats.get("rating"), (int, float)) and stats["rating"] > 0:
+        rating_val = round(float(stats["rating"]) / 10.0, 1)
+    if review_cnt is None and isinstance(stats.get("reviewCount"), (int, float)) and stats["reviewCount"] > 0:
+        review_cnt = int(stats["reviewCount"])
+
+    return rating_val, review_cnt
+
+
+def extract_keepa_price_history(prod, max_points=45):
+    """
+    Extracts historical price points from Keepa csv[0] (Amazon price) or csv[1] (Marketplace New).
+    Returns list of dicts: [{"ts": unix_ts, "price": 24.99}, ...]
+    """
+    csv_arr = prod.get("csv") or []
+    series = None
+    for idx in (0, 1):
+        if len(csv_arr) > idx and isinstance(csv_arr[idx], list) and len(csv_arr[idx]) >= 4:
+            series = csv_arr[idx]
+            break
+    if not series:
+        return []
+
+    raw_points = []
+    for i in range(0, len(series) - 1, 2):
+        k_min = series[i]
+        cents = series[i + 1]
+        if isinstance(k_min, (int, float)) and isinstance(cents, (int, float)) and cents > 0:
+            raw_points.append({
+                "ts": keepa_time_to_unix(k_min),
+                "price": round(float(cents) / 100.0, 2)
+            })
+
+    if len(raw_points) <= max_points:
+        return raw_points
+
+    step = (len(raw_points) - 1) / float(max_points - 1)
+    return [raw_points[round(i * step)] for i in range(max_points)]
 
 
 def parse_keepa_coupon(coupon_arr, current_price_cents=0):
@@ -52,10 +117,6 @@ def parse_keepa_coupon(coupon_arr, current_price_cents=0):
 
 
 def extract_keepa_deal_badge(item_or_prod):
-    """
-    Extracts the genuine Amazon deal badge from Keepa Deal Object or Product Object 'deals' list.
-    Returns e.g. 'Black Friday Deal', 'Cyber Monday Deal', 'Lightning Deal', 'Prime Exclusive Deal', or None.
-    """
     deals_arr = item_or_prod.get("deals")
     if isinstance(deals_arr, list):
         for d in deals_arr:
@@ -102,7 +163,6 @@ def fetch_keepa_deals(has_coupon=False, event_only=False):
     if has_coupon:
         payload["hasCoupon"] = True
     if event_only:
-        # 0 = Best Deal (Black Friday / Cyber Monday / Prime Day), 1 = Lightning Deal, 2 = Deal of the Day
         payload["dealTypes"] = [0, 1, 2]
 
     response = requests.post(url, json=payload, timeout=30)
@@ -115,15 +175,19 @@ def fetch_keepa_deals(has_coupon=False, event_only=False):
     return rows
 
 
-def fetch_keepa_product_coupons(asin_list):
+def fetch_keepa_product_details(asin_list):
+    """
+    Fetches coupon status, genuine Amazon deal badges, review ratings, review counts,
+    and historical price points from Keepa /product with &stats=90&rating=1&history=1.
+    """
     results = {}
-    batch = list(dict.fromkeys([a.strip().upper() for a in asin_list if len(a.strip()) == 10]))[:MAX_COUPON_CHECKS_PER_RUN]
+    batch = list(dict.fromkeys([a.strip().upper() for a in asin_list if len(a.strip()) == 10]))[:MAX_PRODUCT_CHECKS_PER_RUN]
     if not batch:
         return results
 
-    url = f"https://api.keepa.com/product?key={KEEPA_API_KEY}&domain={DOMAIN_ID}&asin={','.join(batch)}&stats=0"
+    url = f"https://api.keepa.com/product?key={KEEPA_API_KEY}&domain={DOMAIN_ID}&asin={','.join(batch)}&stats=90&rating=1&history=1"
     try:
-        res = requests.get(url, timeout=30)
+        res = requests.get(url, timeout=35)
         res.raise_for_status()
         data = res.json()
         tokens_left = data.get("tokensLeft", "?")
@@ -146,26 +210,27 @@ def fetch_keepa_product_coupons(asin_list):
 
             parsed = parse_keepa_coupon(prod.get("coupon"), price_cents)
             real_badge = extract_keepa_deal_badge(prod)
+            rating_val, review_cnt = extract_keepa_rating(prod)
+            price_hist = extract_keepa_price_history(prod, max_points=45)
+
+            entry = {
+                "asin": asin,
+                "active": bool(parsed),
+                "amazon_badge": real_badge,
+                "rating": rating_val,
+                "rating_count": review_cnt,
+                "price_history": price_hist
+            }
             if parsed:
-                results[asin] = {
-                    "asin": asin,
-                    "active": True,
-                    "type": parsed["type"],
-                    "value": parsed["value"],
-                    "amazon_badge": real_badge
-                }
-            else:
-                results[asin] = {
-                    "asin": asin,
-                    "active": False,
-                    "amazon_badge": real_badge
-                }
+                entry["type"] = parsed["type"]
+                entry["value"] = parsed["value"]
+            results[asin] = entry
 
         for a in batch:
             if a not in returned_set:
                 results[a] = {"asin": a, "active": False, "amazon_badge": None}
     except Exception as e:
-        print(f"Keepa product coupon check warning: {e}")
+        print(f"Keepa product detail check warning: {e}")
     return results
 
 
@@ -173,20 +238,19 @@ def run_radar():
     now_utc = datetime.now(timezone.utc)
     timestamp_str = now_utc.strftime("%Y-%m-%d %H:%M UTC")
 
-    # 1. Fetch ONLY genuine Amazon Event/Badge deals (Black Friday / Cyber Monday / Lightning / DotD)
-    #    plus Coupon deals (~10 tokens total). Never mix unbadged deals into event_deals!
     event_deals = fetch_keepa_deals(has_coupon=False, event_only=True)
     coupon_deals = fetch_keepa_deals(has_coupon=True, event_only=False)
 
     sent_asins = set(load_json(SENT_FILE, []))
     cursor_state = load_json(COUPON_CURSOR_FILE, {"asins": [], "cursor": 0})
-    existing_coupon_pool = cursor_state.get("asins", [])
+    existing_pool = cursor_state.get("asins", [])
     cursor = int(cursor_state.get("cursor", 0))
 
     discovered = []
     new_to_send = []
     new_coupon_candidates = []
-    verified_event_deals = {}  # ASIN -> actual Amazon badge text
+    verified_event_deals = {}
+    deal_rating_hints = {}
 
     seen_in_run = set()
     for feed_kind, feed in [("event", event_deals), ("coupon", coupon_deals)]:
@@ -211,6 +275,14 @@ def run_radar():
             if feed_kind == "coupon" and asin not in new_coupon_candidates:
                 new_coupon_candidates.append(asin)
 
+            r_raw = item.get("rating")
+            rc_raw = item.get("reviewCount")
+            if isinstance(r_raw, (int, float)) and 0 < r_raw <= 50:
+                deal_rating_hints[asin] = {
+                    "rating": round(float(r_raw) / 10.0, 1),
+                    "rating_count": int(rc_raw) if isinstance(rc_raw, (int, float)) and rc_raw > 0 else None
+                }
+
             entry = {
                 "asin": asin,
                 "title": short_title,
@@ -225,20 +297,20 @@ def run_radar():
                 new_to_send.append(entry)
                 sent_asins.add(asin)
 
-    priority_check = list(verified_event_deals.keys())[:4] + new_coupon_candidates[:4]
-    to_check = list(dict.fromkeys(priority_check))
-    if existing_coupon_pool:
-        if cursor >= len(existing_coupon_pool):
+    priority_check = list(verified_event_deals.keys())[:4] + new_coupon_candidates[:4] + [d["asin"] for d in discovered[:4]]
+    to_check = list(dict.fromkeys(priority_check))[:10]
+    if existing_pool:
+        if cursor >= len(existing_pool):
             cursor = 0
-        slice_existing = existing_coupon_pool[cursor:cursor + (MAX_COUPON_CHECKS_PER_RUN - len(to_check))]
+        slice_existing = existing_pool[cursor:cursor + (MAX_PRODUCT_CHECKS_PER_RUN - len(to_check))]
         cursor += len(slice_existing)
         for a in slice_existing:
             if a not in to_check:
                 to_check.append(a)
 
-    coupon_status_map = fetch_keepa_product_coupons(to_check)
-    coupon_updates = list(coupon_status_map.values())
-    for c_asin, c_info in coupon_status_map.items():
+    detail_map = fetch_keepa_product_details(to_check)
+    coupon_updates = list(detail_map.values())
+    for c_asin, c_info in detail_map.items():
         if c_info.get("amazon_badge"):
             verified_event_deals[c_asin] = c_info["amazon_badge"]
 
@@ -265,7 +337,7 @@ def run_radar():
     with open(SENT_FILE, "w", encoding="utf-8") as f:
         json.dump(list(sent_asins)[-1500:], f)
 
-    print(f"Tespit edilen ürün: {len(discovered)}, Yeni ASIN: {len(new_to_send)}, Gerçek Amazon Rozetli ASIN: {len(verified_event_deals)}")
+    print(f"Tespit edilen ürün: {len(discovered)}, Yeni ASIN: {len(new_to_send)}, Detay/Rating Çekilen: {len(detail_map)}")
 
     if WEBHOOK_SECRET:
         event_entries = [e for e in new_to_send if e["asin"] in verified_event_deals]
@@ -281,6 +353,7 @@ def run_radar():
             json={
                 "asins": ordered_to_send,
                 "verified_event_deals": verified_event_deals,
+                "deal_rating_hints": deal_rating_hints,
                 "coupon_updates": coupon_updates,
                 "llms_txt": llms_content
             },
@@ -289,14 +362,14 @@ def run_radar():
         print("Nabstash Yanıtı:", res.status_code, res.text)
         try:
             resp_json = res.json()
-            server_pool = resp_json.get("active_coupon_asins", [])
+            server_pool = resp_json.get("enrich_pool_asins") or resp_json.get("active_coupon_asins") or []
             if isinstance(server_pool, list) and server_pool:
-                existing_coupon_pool = [a.strip().upper() for a in server_pool if len(a.strip()) == 10]
+                existing_pool = [a.strip().upper() for a in server_pool if len(a.strip()) == 10]
         except Exception:
             pass
 
     with open(COUPON_CURSOR_FILE, "w", encoding="utf-8") as f:
-        json.dump({"asins": existing_coupon_pool, "cursor": cursor}, f)
+        json.dump({"asins": existing_pool, "cursor": cursor}, f)
 
 
 if __name__ == "__main__":

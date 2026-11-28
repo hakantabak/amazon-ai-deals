@@ -34,40 +34,49 @@ def keepa_time_to_unix(keepa_minutes):
     return int((keepa_minutes + 21564000) * 60)
 
 
+def _last_positive_csv_val(series):
+    if not isinstance(series, list) or len(series) < 2:
+        return None
+    for i in range(len(series) - 1, 0, -2):
+        v = series[i]
+        if isinstance(v, (int, float)) and v > 0:
+            return v
+    return None
+
+
 def extract_keepa_rating(prod):
     """
-    Extracts latest star rating (1.0 - 5.0) and review count from Keepa Product Object.
-    Keepa csv[16] = RATING (0..50, e.g. 46 = 4.6 stars)
-    Keepa csv[17] = COUNT_REVIEWS
+    Extracts latest valid star rating (1.0 - 5.0) and review count from Keepa Product Object.
+    Scans Keepa csv[16] (RATING: 0..50) and csv[17] (COUNT_REVIEWS) backwards so -1 gaps don't hide valid ratings.
     """
     rating_val = None
     review_cnt = None
     csv_arr = prod.get("csv") or []
 
-    if len(csv_arr) > 16 and isinstance(csv_arr[16], list) and len(csv_arr[16]) >= 2:
-        raw_r = csv_arr[16][-1]
-        if isinstance(raw_r, (int, float)) and 0 < raw_r <= 50:
+    if len(csv_arr) > 16:
+        raw_r = _last_positive_csv_val(csv_arr[16])
+        if raw_r is not None and 0 < raw_r <= 50:
             rating_val = round(float(raw_r) / 10.0, 1)
 
-    if len(csv_arr) > 17 and isinstance(csv_arr[17], list) and len(csv_arr[17]) >= 2:
-        raw_c = csv_arr[17][-1]
-        if isinstance(raw_c, (int, float)) and raw_c > 0:
+    if len(csv_arr) > 17:
+        raw_c = _last_positive_csv_val(csv_arr[17])
+        if raw_c is not None and raw_c > 0:
             review_cnt = int(raw_c)
 
     stats = prod.get("stats") or {}
-    if rating_val is None and isinstance(stats.get("rating"), (int, float)) and stats["rating"] > 0:
-        rating_val = round(float(stats["rating"]) / 10.0, 1)
-    if review_cnt is None and isinstance(stats.get("reviewCount"), (int, float)) and stats["reviewCount"] > 0:
-        review_cnt = int(stats["reviewCount"])
+    if rating_val is None:
+        st_r = stats.get("rating")
+        if isinstance(st_r, (int, float)) and 0 < st_r <= 50:
+            rating_val = round(float(st_r) / 10.0, 1)
+    if review_cnt is None:
+        st_c = stats.get("reviewCount")
+        if isinstance(st_c, (int, float)) and st_c > 0:
+            review_cnt = int(st_c)
 
     return rating_val, review_cnt
 
 
 def extract_keepa_price_history(prod, max_points=45):
-    """
-    Extracts historical price points from Keepa csv[0] (Amazon price) or csv[1] (Marketplace New).
-    Returns list of dicts: [{"ts": unix_ts, "price": 24.99}, ...]
-    """
     csv_arr = prod.get("csv") or []
     series = None
     for idx in (0, 1):
@@ -176,10 +185,6 @@ def fetch_keepa_deals(has_coupon=False, event_only=False):
 
 
 def fetch_keepa_product_details(asin_list):
-    """
-    Fetches coupon status, genuine Amazon deal badges, review ratings, review counts,
-    and historical price points from Keepa /product with &stats=90&rating=1&history=1.
-    """
     results = {}
     batch = list(dict.fromkeys([a.strip().upper() for a in asin_list if len(a.strip()) == 10]))[:MAX_PRODUCT_CHECKS_PER_RUN]
     if not batch:
@@ -195,6 +200,7 @@ def fetch_keepa_product_details(asin_list):
 
         products = data.get("products", [])
         returned_set = set()
+        rated_count = 0
         for prod in products:
             asin = (prod.get("asin") or "").upper()
             if not asin:
@@ -204,13 +210,15 @@ def fetch_keepa_product_details(asin_list):
             price_cents = 0
             csv_arr = prod.get("csv") or []
             if len(csv_arr) > 0 and isinstance(csv_arr[0], list) and len(csv_arr[0]) >= 2:
-                last_p = csv_arr[0][-1]
-                if isinstance(last_p, (int, float)) and last_p > 0:
+                last_p = _last_positive_csv_val(csv_arr[0])
+                if last_p:
                     price_cents = last_p
 
             parsed = parse_keepa_coupon(prod.get("coupon"), price_cents)
             real_badge = extract_keepa_deal_badge(prod)
             rating_val, review_cnt = extract_keepa_rating(prod)
+            if rating_val:
+                rated_count += 1
             price_hist = extract_keepa_price_history(prod, max_points=45)
 
             entry = {
@@ -226,6 +234,7 @@ def fetch_keepa_product_details(asin_list):
                 entry["value"] = parsed["value"]
             results[asin] = entry
 
+        print(f"Keepa rating bulunan ürün sayısı: {rated_count}/{len(products)}")
         for a in batch:
             if a not in returned_set:
                 results[a] = {"asin": a, "active": False, "amazon_badge": None}
@@ -298,7 +307,7 @@ def run_radar():
                 sent_asins.add(asin)
 
     priority_check = list(verified_event_deals.keys())[:4] + new_coupon_candidates[:4] + [d["asin"] for d in discovered[:4]]
-    to_check = list(dict.fromkeys(priority_check))[:10]
+    to_check = list(dict.fromkeys(priority_check))[:8]
     if existing_pool:
         if cursor >= len(existing_pool):
             cursor = 0

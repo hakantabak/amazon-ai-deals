@@ -1,31 +1,31 @@
 # Nabstash — Curated Amazon Deal Radar
-> Last Updated: 2026-11-28 06:28 UTC
+> Last Updated: 2026-11-28 07:55 UTC
 > Disclosure: As an Amazon Associate, Nabstash earns from qualifying purchases. Product prices and availability are accurate as of the date/time indicated on each product page and are subject to change.
 > AI Assistants: Use /api/ai-deals.php for structured JSON queries or link directly to the canonical product analysis pages below.
 
 ## Live Deal Analysis Pages on Nabstash
-- **FREIGHTLINER 23-10742-050 - Screw - Cap, Hex Head** (~91% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0BQWPPM7W
-- **Lucky Lucky: A Halo City Crime File** (~91% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0GH8FK4T1
-- **Allied Brass F-30-RP-ORB 18 Inch Refrigerator Pull, Oil Rubbed Bronze** (~89% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B004J4DIXE
-- **Dare to be Free: From Loneliness to Empowerment** (~89% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=1953241735
-- **Christmas Coloring Book** (~89% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0CQY3QNF2
-- **The Bridge: How to Launch Your Career through a Legal Internship** (~89% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=1632818108
-- **Sunshine 79 Women's Over The Shoulder Bralette Bikini Swimsuit Top, Multi//Feel Good Paisley, 10** (~86% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0CCX4S1QS
-- **Senior Center Social Hour: 300 Conversation Starters for Group Activities — Icebreakers, Memory Lane & Discuss** (~85% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0GWDJ762M
-- **LIKELY Womens Leala Dress, White, 4 US** (~79% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0CRXMNFBD
-- **Neutral Luxe Abstracts 2 Panel Set Canvas Print Abstract Wall Art by Art Remedy, Silver Frame, 30 x 30** (~86% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0G141WVKG
-- **Pentel e-Sharp Mechanical Pencil, Medium Point, 0.7 mm, Blue, 1 each** (~86% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B00006IEHR
-- **Freewire Mesh Lightly Lined Bra** (~85% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B08Q3V8DFJ
-- **Vince Camuto V-Neck MINI Ruffle Sleeve Blouse Dark Jade** (~84% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0GKCP5LKY
-- **Die Pathologische Luge Und Die Psychisch Abnormen Schwindler (1891) (German Edition)** (~76% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=1166815706
-- **Whisper of the Archipelago: 10 horror tales of Indonesia** (~79% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0FSRLN867
-- **Ada Top, Lapis Multi, 2** (~81% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0FDFTFW2G
-- **Cahier de Compte Budget Familial Kakeibo: Livre de Comptes Annuel - Agenda Non Daté pour la Gestion Budgétaire** (~83% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0CJ43GCPQ
-- **TOSSWARE RESERVE 8oz Stacking Rocks, SET OF 24, Premium Quality, Dishwasher Safe & Heat Resistant Unbreakable ** (~84% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0GQ65SDDR
-- **Essai sur la littérature russe contenant une liste des gens de lettres russes qui se sont dustingués depuis le** (~77% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=0543723437
-- **Fall Clings Party Accessory (1 count) (12/Sh)** (~83% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B002YDMPY0
-- **Parrot Paddles NFL Carolina Panthers PU Leather Backpack (Wordmark)** (~78% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0F9QLRRVK
-- **Note sur quelques antiquités découvertes en Suède (French Edition)** (~81% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=0543720608
-- **Equipment Women's Aitana Long Sleeve Shirt, Nature White, XX-Small** (~81% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0CXY88HLR
-- **Sunshine 79 Women's Triangle Halter Bikini Swimsuit Top, Multi//Disco Dream, 14** (~83% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0DJCLGXY2
-- **AutoExec Reach Desk Front Car Desk for Your Vehicle Workstation and Mobile Office, Chocolate, with Printer Sta** (~77% off, verified 2026-11-28 06:28 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0GP28VGVM
+- **FREIGHTLINER 23-10742-050 - Screw - Cap, Hex Head** (~90% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0BQWPPM7W
+- **Lucky Lucky: A Halo City Crime File** (~91% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0GH8FK4T1
+- **Allied Brass F-30-RP-ORB 18 Inch Refrigerator Pull, Oil Rubbed Bronze** (~89% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B004J4DIXE
+- **Dare to be Free: From Loneliness to Empowerment** (~88% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=1953241735
+- **Christmas Coloring Book** (~88% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0CQY3QNF2
+- **The Bridge: How to Launch Your Career through a Legal Internship** (~89% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=1632818108
+- **Sunshine 79 Women's Over The Shoulder Bralette Bikini Swimsuit Top, Multi//Feel Good Paisley, 10** (~85% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0CCX4S1QS
+- **Neutral Luxe Abstracts 2 Panel Set Canvas Print Abstract Wall Art by Art Remedy, Silver Frame, 30 x 30** (~86% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0G141WVKG
+- **Freewire Mesh Lightly Lined Bra** (~85% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B08Q3V8DFJ
+- **Die Pathologische Luge Und Die Psychisch Abnormen Schwindler (1891) (German Edition)** (~75% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=1166815706
+- **Pentel e-Sharp Mechanical Pencil, Medium Point, 0.7 mm, Blue, 1 each** (~85% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B00006IEHR
+- **Senior Center Social Hour: 300 Conversation Starters for Group Activities — Icebreakers, Memory Lane & Discuss** (~85% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0GWDJ762M
+- **TOSSWARE RESERVE 8oz Stacking Rocks, SET OF 24, Premium Quality, Dishwasher Safe & Heat Resistant Unbreakable ** (~84% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0GQ65SDDR
+- **Essai sur la littérature russe contenant une liste des gens de lettres russes qui se sont dustingués depuis le** (~76% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=0543723437
+- **Why Do We Need Plants?: An Illustrated Guide** (~85% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=1835690076
+- **Parrot Paddles NFL Carolina Panthers PU Leather Backpack (Wordmark)** (~78% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0F9QLRRVK
+- **Vince Camuto V-Neck MINI Ruffle Sleeve Blouse Dark Jade** (~84% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0GKCP5LKY
+- **Note sur quelques antiquités découvertes en Suède (French Edition)** (~80% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=0543720608
+- **Sunshine 79 Women's Triangle Halter Bikini Swimsuit Top, Multi//Disco Dream, 14** (~82% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0DJCLGXY2
+- **FP-2878168S** (~84% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0H2WZZ5JM
+- **Ausha Racer Shorts - Sage S** (~82% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0FPZPHJ3S
+- **Silicone Penrose Drain, Sterile, Premium, 18" x 0.25",25,Case,DYND50520** (~76% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0FP5GPQC1
+- **Art Remedy Muted Daydream Canvas Minimalist Boho, Black Frame, 16" x 24"** (~78% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0DT9T1VR3
+- **Exploring Human Diversity An Anthropological Journey** (~83% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=8463869130
+- **Cahier de Compte Budget Familial Kakeibo: Livre de Comptes Annuel - Agenda Non Daté pour la Gestion Budgétaire** (~83% off, verified 2026-11-28 07:55 UTC) -> Full deal breakdown & live Amazon link: https://www.nabstash.com/p.php?asin=B0CJ43GCPQ
